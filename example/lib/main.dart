@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
 import 'package:flutter_beacon_example/view/home_page.dart';
 import 'package:get/get.dart';
+import 'package:flutter_beacon/flutter_beacon.dart';
 
 void main() {
   runApp(MainApp());
@@ -42,6 +43,54 @@ class MainApp extends StatelessWidget {
         primarySwatch: primary,
       ),
       home: HomePage(),
+    );
+  }
+}
+
+//add for scan specific beacon (by UUID)
+class SearchScreen extends StatefulWidget {
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  //final String _uuid = 'YOUR_SPECIFIC_BEACON_UUID';
+  final String _uuid = 'D0611E78-BBB4-4591-A5F8-487910AE4366';
+
+  StreamSubscription<RangingResult> _rangingSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // initialize flutter_beacon
+    FlutterBeacon.initializeAndCheckScanning;
+
+    // start ranging for beacons
+    _rangingSubscription = FlutterBeacon.ranging(
+      region: BeaconRegion(
+        identifier: 'myRegion',
+        proximityUUID: _uuid, // search for specific UUID only
+      ),
+    ).listen((result) {
+      // handle ranging result here
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    // stop ranging for beacons
+    _rangingSubscription?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // build UI here
+    return Scaffold(
+      appBar: AppBar(title: Text('Search')),
+      body: Center(child: Text('Searching for beacon with UUID $_uuid...')),
     );
   }
 }
